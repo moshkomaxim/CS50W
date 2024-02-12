@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Search</title>
+    <link rel="stylesheet" href="style.css">
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <img id="advanced-img" src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Error">
+    <div class="advanced-header">
+        <a href="index.html">Google Search</a>
+        <a href="images.html">Images Search</a>
+    </div>
+    <div id="advanced-article">
+        <p>Advanced Search</p>
+    </div>
+    <hr id="advanced-hr">
+    <div class="advanced-container">
+        <form action="https://www.google.com/search">
+            <table id="advanced-table">
+                <tr>
+                    <td>
+                        <p id="advanced-left-head">Find pages with...</p>
+                    </td>
+                    <td></td>
+                    <td>
+                        <p id="advanced-right-head">To do this in the search box</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="advanced-table-td">
+                        <label for="arg1">all these words:</label>
+                    </td>
+                    <td class="advanced-table-td advanced-input-td">
+                        <input class="advanced-input" type="text" name="as_q">
+                    </td>
+                    <td>
+                        <p class="advanced-note">Type the important words:  <code>tricolor rat terrier</code></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="advanced-table-td">
+                        <label for="arg2">this exact word of phrase:</label>
+                    </td>
+                    <td class="advanced-table-td advanced-input-td">
+                        <input class="advanced-input" type="text" name="as_epq">
+                    </td>
+                    <td>
+                        <p class="advanced-note">Put exact words in quotes:  <code>"rat terrier"</code></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="advanced-table-td">
+                        <label for="arg3">any of these words:</label>
+                    </td>
+                    <td class="advanced-table-td advanced-input-td">
+                        <input class="advanced-input" type="text" name="as_oq">
+                    </td>
+                    <td>
+                        <p class="advanced-note">Type OR between all the words you want:  <code>miniature OR standard</code></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="advanced-table-td">
+                        <label for="arg4">none of these words</label>
+                    </td>
+                    <td class="advanced-table-td advanced-input-td">
+                        <input class="advanced-input" type="text" name="as_eq">
+                    </td>
+                    <td>
+                        <p class="advanced-note">Put a minus sign just before words you don't want:  <code>-rodent, -"Jack Russell"</code></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="advanced-table-td">
+                        <label for="arg5">numbers ranging from</label>
+                    </td>
+                    <td class="advanced-table-td">
+                        <input class="advanced-range-input" type="text" name="as_nlo">
+                        <pre>  to  </pre>
+                        <input class="advanced-range-input" type="text" name="as_nhi">
+                    </td>
+                    <td>
+                        <p class="advanced-note">Put 2 periods between the numbers and add a unit of measure: <code>10..35 lb, $300..$500, 2010..2011</code></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <button id="advanced-button" type="Submit">Advanced Search</button>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</body>
+</html>
