@@ -1,6 +1,7 @@
 import re
 import random
-from django.shortcuts import render
+import markdown2
+from django.shortcuts import render, redirect
 
 from . import util
 
@@ -14,10 +15,9 @@ def index(request):
 def title(request, title):
     content = util.get_entry(title)
     if content:
-        title, content = util.distinct_entry(content)
         return render(request, "encyclopedia/title.html", {
-            "name": title,
-            "content": content
+            "title": title,
+            "content": markdown2.markdown(content)
         })
     else:
         return render(request, "encyclopedia/error.html", {
@@ -27,82 +27,53 @@ def title(request, title):
 
 
 def search(request):
-    title = request.GET
-    title = title["q"].strip()
-    
-    found_titles = util.search_entry(title)
-
-    if len(found_titles) == 1 and found_titles[0].lower() == title.lower():
-        content = util.get_entry(found_titles[0])
-        name, content = util.distinct_entry(content)
-        return render(request, "encyclopedia/title.html", {
-            "name": name,
-            "content": content
-        })
-    
-    elif found_titles == None:
-        return render(request, "encyclopedia/search.html")
-    
-    else:
-        return render(request, "encyclopedia/search.html", {
-            "found_titles": found_titles
-        })
+    query = request.GET.get('q').strip()
+    if query in util.list_entries():
+        return redirect("title", title=query)
+    return render(request, "encyclopedia/search.html", {
+        "found_titles": util.search_entry(query)
+    })
 
 
 def create(request):
     if request.method == "POST":
         name = request.POST["Title"].strip()
         content = request.POST["Content"].strip()
-        if util.get_entry(name.title()):
+        if util.get_entry(name):
             return render(request, "encyclopedia/error.html", {
                 "name": name,
                 "error": "Exist"
-        })
+            }) 
 
-        util.save_entry(name.title(), content)
-        content = util.get_entry(name)
-        name, content = util.distinct_entry(content)
-        return render(request, "encyclopedia/title.html", {
-            "name": name,
-            "content": content
-        })
-    
+        util.save_entry(name, content)
+        return redirect("title", title=name)
     else:
         return render(request, "encyclopedia/create.html")
 
 
 def edit(request):
-    if request.method == "GET":
+    if request.method == "POST":
+        name = request.POST["Title"].strip()
+        content = request.POST["Content"].strip()
+        print(name, content)
+        util.save_entry(name, content)
+        return redirect("title", title=name)
+
+    elif request.method == "GET":
         name = request.GET["Title"].strip()
         content = util.get_entry(name)
+        print(name, content)
 
         return render(request, "encyclopedia/edit.html", {
             "name": name,
             "content": content
         })
     
-    elif request.method == "POST":
-        name = request.POST["Title"].strip()
-        content = request.POST["Content"]
-        util.save_entry(name, content)
-        
-        content = util.get_entry(name)
-        name, content = util.distinct_entry(content)
-        return render(request, "encyclopedia/title.html", {
-            "name": name,
-            "content": content
-        })
-
 
 def get_random(request):
-    title = random.choice(util.list_entries())
+    name = random.choice(util.list_entries())
     
-    content = util.get_entry(title)
-    name, content = util.distinct_entry(content)
-    return render(request, "encyclopedia/title.html", {
-        "name": name,
-        "content": content
-    })
+    return redirect("title", title=name)
     
 
     
