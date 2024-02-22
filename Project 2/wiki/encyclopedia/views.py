@@ -51,9 +51,8 @@ def search(request):
 
 def create(request):
     if request.method == "POST":
-        name = request.POST["Title"]
-        content = request.POST["Content"]
-        
+        name = request.POST["Title"].strip()
+        content = request.POST["Content"].strip()
         if util.get_entry(name.title()):
             return render(request, "encyclopedia/error.html", {
                 "name": name,
@@ -70,6 +69,29 @@ def create(request):
     
     else:
         return render(request, "encyclopedia/create.html")
+
+
+def edit(request):
+    if request.method == "GET":
+        name = request.GET["Title"].strip()
+        content = util.get_entry(name)
+
+        return render(request, "encyclopedia/edit.html", {
+            "name": name,
+            "content": content
+        })
+    
+    elif request.method == "POST":
+        name = request.POST["Title"].strip()
+        content = request.POST["Content"]
+        util.save_entry(name, content)
+        
+        content = util.get_entry(name)
+        name, content = util.distinct_entry(content)
+        return render(request, "encyclopedia/title.html", {
+            "name": name,
+            "content": content
+        })
 
 
 def get_random(request):

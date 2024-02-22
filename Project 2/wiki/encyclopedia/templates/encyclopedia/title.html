@@ -6,6 +6,10 @@
 
 {% block body %}
     <h2>{{ name }}</h2>
-    <p>{{ content }}</p>
+    <pre>{{ content }}</pre>
 
+    <form action="{% url 'edit' %}">
+        <input type="hidden" value="{{name}}" name="Title">
+        <input type="submit" value="Edit">
+    </form>
 {% endblock %}

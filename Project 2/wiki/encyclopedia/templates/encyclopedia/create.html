@@ -9,11 +9,11 @@
     <form action="{% url 'create' %}" method="post">
         <div>
             <h4>Title:</h4>
-            <input type="textarea" name="Title" value="Title">
+            <input type="textarea" name="Title" placeholder="Title" required>
         </div>
         <div>
             <h4>Markdown Content:</h4>
-            <textarea style="height: 300px; width: 700px" name="Content" value="Content"></textarea>
+            <textarea style="height: 300px; width: 700px" name="Content" placeholder="Markdown content" required></textarea>
         </div>
         <br>
         <div>
