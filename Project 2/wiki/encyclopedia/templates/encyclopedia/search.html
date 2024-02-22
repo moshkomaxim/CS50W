@@ -1,0 +1,23 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block title %}
+    Encyclopedia
+{% endblock %}
+
+{% block body %}
+    <h1>All Pages</h1>
+
+    {% if found_titles %}
+        <ul>
+            {% for title in found_titles %}
+                <li>
+                    <a href="{% url 'title' title %}">{{ title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h3>Not found!</h3>
+    {% endif %}
+
+{% endblock %}
+

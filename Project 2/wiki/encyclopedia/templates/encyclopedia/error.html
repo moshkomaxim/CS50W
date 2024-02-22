@@ -5,7 +5,12 @@
 {% endblock %}
 
 {% block body %}
-    <h2>Error! The entry {{ name }} not found in database!</h2>
-    <p>You can create it on your own.</p>
-    <a>Create</a>
+    {% if error == "Exist" %}
+        <h2>Error! Data entry already exist!</h2>
+        <p>You can't modify already existed entries for now</p>
+    {% elif error == "Not exist" %}
+        <h2>Error! The entry {{ name }} not found in database!</h2>
+        <p>You can create it on your own.</p>
+        <a href="{% url 'create' %}">Create</a>
+    {% endif %}
 {% endblock %}

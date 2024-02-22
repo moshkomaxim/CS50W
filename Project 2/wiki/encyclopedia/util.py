@@ -30,8 +30,33 @@ def get_entry(title):
     Retrieves an encyclopedia entry by its title. If no such
     entry exists, the function returns None.
     """
+    print(default_storage.listdir("entries")[1])
     try:
         f = default_storage.open(f"entries/{title}.md")
         return f.read().decode("utf-8")
     except FileNotFoundError:
         return None
+
+
+def search_entry(title):
+    entry_list = list_entries()
+    found_entry_list = []
+    title = title.strip()
+
+    for entry in entry_list:
+        if title.lower() == entry.lower():
+            return [entry]
+        result = re.search(title.strip(), entry.lower())
+        if result:
+            found_entry_list.append(entry)
+
+    return found_entry_list
+
+
+def distinct_entry(content):
+    name_position = content.find("\n")
+    name = content[2:name_position]
+    content = content[name_position:]
+
+    return name, content
+
