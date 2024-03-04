@@ -6,7 +6,7 @@ class ListingForm(forms.ModelForm):
     class Meta:
         model = Listing
         fields = "__all__"
-        exclude = ['sold', 'author']
+        exclude = ['author', 'sold_is', 'sold_date', 'sold_price', 'sold_to']
 
 
 class CommentForm(forms.ModelForm):
@@ -14,6 +14,7 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = "__all__"
         exclude = ['user', 'item', 'created', 'deleted']
+
 
 class BidForm(forms.ModelForm):
     class Meta:

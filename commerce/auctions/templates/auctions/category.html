@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>{{ category }}</h2>
     {% for item in items %}
     <div>
         <a href="{% url 'item' item.id %}">{{ item.name }}</a>
@@ -13,7 +13,6 @@
             <img src="{% static 'auctions/nophoto.jpg' %}" width=150px height=150px>
         {% endif %}
         <p>Price: {{ item.price }}$</p>
-        <p>Category: {{ item.category }}</p>
         <p>Created: {{ item.created }}</p>
     </div>
     <hr>

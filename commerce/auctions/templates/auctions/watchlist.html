@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load static %}
 
 {% block body %}
     <h2>Watch list</h2>
@@ -7,10 +8,14 @@
         <div>
             <a href="{% url 'item' item.item.id %}">{{ item.item.name }}</a>
             <img src="{{ item.item.image }}" width=150px height=150px>
-            <p>Price: {{ item.item.price }}</p>
+            <p>Price: {{ item.item.price }}$</p>
             <p>Category: {{ item.item.category }}</p>
             <p>Created: {{ item.item.created }}</p>
-            <a href="{% url 'watchlist_delete' item.id %}">Delete from Watchlist</a>
+            <form action="{% url 'watchlist_delete' item.item.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Delete from watchlist">
+            </form>
+            
         </div>
         <hr>
         {% endfor %}

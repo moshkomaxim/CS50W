@@ -1,16 +1,57 @@
 {% extends "auctions/layout.html" %}
+{% load static %}
 
 {% block body %}
+    {% if item.sold_to == request.user %}
+        <h2>You succesfully bought this item!</h2>
+    {% elif item_sold_is %}
+        <h2>This item is already sold</h2>
+    {% endif %}
+
     <h2>{{ item.name }}</h2>
-    <a href="{% url 'add_watch_list' item.id %}">Add to watchlist</a>
+    {% if not item.sold_is %}
+        {% if in_watchlist %}
+            <a href="{% url 'watchlist_delete' item.id %}"></a>
+            <form action="{% url 'watchlist_delete' item.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Delete from watchlist">
+            </form>
+        {% elif not in_watchlist %}
+            <form action="{% url 'add_watch_list' item.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Add to watchlist">
+            </form>
+        {% endif %}
+        {% if is_author %}
+            <form action="{% url 'close_listing' item.id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Close listing">
+            </form>
+        {% endif %}  
+    {% endif %}
+
     <img src="{{ item.image }}" width=150px height=150px>
     <p>{{ item.description }}</p>
-    <p>Price: {{ item.price }}</p>
+    <p>Price: {{ item.price }}$</p>
     <p>Category: {{ item.category }}</p>
     <p>Author: {{ item.author }}</p>
     <p>Created: {{ item.created }}</p>
-    <p>Sold: {{ item.sold }}</p>
-    <p>Bids: {{ bids_amount }}, max: {{ bids_max }}$</p>
+    {% if not item.sold_is %}
+        <p>Bids: {{ bids_amount }}, max: {{ bids_max }}$</p>
+        {% if request.user.is_authenticated %}
+            {% if user_bid %}
+                <p>Your bid: {{ user_bid.price }}$</p>
+            {% endif %}
+        <form action="{% url 'add_bid' item.id %}" method="post">
+            {% csrf_token %}
+            {{ bid_form }}
+            <input type="submit" value="Place bid">
+        </form>
+        {% endif %}
+    {% else %}
+        <p>Solded: {{ item.sold_date }} at price {{ item.sold_price }}$</p>
+    {% endif %}
+    
     <hr>
     <h2>Comments</h2>
     {% for comment in comments %}
@@ -19,9 +60,12 @@
         <p>{{ comment.created }}</p>
     {% endfor %}
     <hr>
+    {% if request.user.is_authenticated %}
     <form action="{% url 'add_comment' item.id %}" method="post">
         {% csrf_token %}
-        {{ form }}
+        {{ comment_form }}
         <input type="submit">
     </form>
+    {% endif %}
+
 {% endblock %}
