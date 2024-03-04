@@ -24,6 +24,7 @@ def item(request, item_id):
             obj.user = request.user
             obj.item = item_object
             obj.save()
+            print("HAHA")
             return HttpResponseRedirect(reverse("item", args=(item_id,)))
     else:        
         comments = Comment.objects.filter(item=item_id, deleted=False)
