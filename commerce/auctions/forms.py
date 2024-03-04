@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Listing, Comment
+from .models import Listing, Comment, Bid
 
 class ListingForm(forms.ModelForm):
     class Meta:
@@ -14,3 +14,9 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = "__all__"
         exclude = ['user', 'item', 'created', 'deleted']
+
+class BidForm(forms.ModelForm):
+    class Meta:
+        model = Bid
+        fields = "__all__"
+        exclude = ['user', 'item']
