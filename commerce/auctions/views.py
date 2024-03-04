@@ -60,6 +60,7 @@ def add_comment(request, item_id):
             obj.user = request.user
             obj.item = item_object
             obj.save()
+            #check
             return HttpResponseRedirect(reverse("item", args=(item_id,)))
 
 
