@@ -16,34 +16,25 @@ def index(request):
 
 
 def item(request, item_id):
-    item_object = Listing.objects.get(id=item_id)
-    if request.method == "POST":
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            obj = form.save(commit=False)
-            obj.user = request.user
-            obj.item = item_object
-            obj.save()
-            return HttpResponseRedirect(reverse("item", args=(item_id,)))
-    else:        
-        comments = Comment.objects.filter(item=item_id, deleted=False)
-        comments_form = CommentForm()
+    item_object = Listing.objects.get(id=item_id)       
+    comments = Comment.objects.filter(item=item_id, deleted=False)
+    comments_form = CommentForm()
 
-        bids = Bid.objects.filter(item=item_object)
-        bids_amount = bids.count()
-        bids_max = 0
+    bids = Bid.objects.filter(item=item_object)
+    bids_amount = bids.count()
+    bids_max = 0
 
-        for bid in bids:
-            if bid.price > bids_max:
-                bids_max = bid.price
+    for bid in bids:
+        if bid.price > bids_max:
+            bids_max = bid.price
 
-        return render(request, "auctions/view.html", {
-            "item": item_object,
-            "comments": comments,
-            "form": comments_form,
-            "bids_amount": bids_amount,
-            "bids_max": bids_max
-        })
+    return render(request, "auctions/view.html", {
+        "item": item_object,
+        "comments": comments,
+        "form": comments_form,
+        "bids_amount": bids_amount,
+        "bids_max": bids_max
+    })
 
 
 def add_watch_list(request, item_id):
@@ -58,6 +49,18 @@ def add_watch_list(request, item_id):
     object.user = user
     object.save()
     return HttpResponseRedirect(reverse("watchlist"))
+
+
+def add_comment(request, item_id):
+    item_object = Listing.objects.get(id=item_id)
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.user = request.user
+            obj.item = item_object
+            obj.save()
+            return HttpResponseRedirect(reverse("item", args=(item_id,)))
 
 
 def watchlist(request):
