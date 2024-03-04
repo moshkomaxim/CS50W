@@ -1,12 +1,11 @@
 from django.contrib import admin
 
-from .models import User, Listing, Bids, Category
+from .models import User, Listing, Bid, Category, Comment, WatchList
 # Register your models here.
 
-class ListingAdmin(admin.ModelAdmin):
-    filter_horizontal = ("bids", )
-    
 admin.site.register(User)
-admin.site.register(Listing, ListingAdmin)
-admin.site.register(Bids)
+admin.site.register(Listing)
+admin.site.register(Bid)
 admin.site.register(Category)
+admin.site.register(Comment)
+admin.site.register(WatchList)

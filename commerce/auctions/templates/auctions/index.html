@@ -5,11 +5,11 @@
 
     {% for item in items %}
     <div>
-        <p>Name: {{ item.name }}</p>
+        <a href="{% url 'item' item.id %}">{{ item.name }}</a>
+        <img src="{{ item.image }}" width=150px height=150px>
         <p>Price: {{ item.price }}</p>
-        <p>Category: {{ item.category}}</p>
-        <p>Posted by: {{ item.listed_by }}</p>
-        <p>Bids: {{ item.bids }}</p>
+        <p>Category: {{ item.category }}</p>
+        <p>Created: {{ item.created }}</p>
     </div>
     <hr>
     {% endfor %}

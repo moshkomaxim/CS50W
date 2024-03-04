@@ -7,15 +7,32 @@ class User(AbstractUser):
 class Category(models.Model):
     category_name = models.CharField(max_length=20)
 
-class Bids(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="users_bids")
-    bid = models.IntegerField()
 
 class Listing(models.Model):
     name = models.CharField(max_length=20)
-    price = models.IntegerField()
+    description = models.CharField(max_length=150)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listed_by")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="categories")
-    #image = models.ImageField()
-    listed_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listed_by")
-    bids = models.ManyToManyField(Bids, null=True, blank=True, related_name="bids")
+    price = models.IntegerField()
+    image = models.URLField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    sold = models.BooleanField(default=False)
 
+
+class Bid(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item = models.ForeignKey(Listing, on_delete=models.CASCADE)
+    price = models.IntegerField()
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item = models.ForeignKey(Listing, on_delete=models.CASCADE)
+    text = models.CharField(max_length=100)
+    created = models.DateTimeField(auto_now_add=True)
+    deleted = models.BooleanField(default=False)
+
+
+class WatchList(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item = models.ForeignKey(Listing, on_delete=models.CASCADE)

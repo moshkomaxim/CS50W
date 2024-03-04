@@ -1,0 +1,20 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Watch list</h2>
+    {% if items %}
+        {% for item in items %}
+        <div>
+            <a href="{% url 'item' item.item.id %}">{{ item.item.name }}</a>
+            <img src="{{ item.item.image }}" width=150px height=150px>
+            <p>Price: {{ item.item.price }}</p>
+            <p>Category: {{ item.item.category }}</p>
+            <p>Created: {{ item.item.created }}</p>
+            <a href="{% url 'watchlist_delete' item.id %}">Delete from Watchlist</a>
+        </div>
+        <hr>
+        {% endfor %}
+    {% else %}
+        <h2>No items in Watchlist!</h2>
+    {% endif %}
+{% endblock %}
