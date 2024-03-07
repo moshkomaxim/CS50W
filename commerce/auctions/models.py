@@ -1,11 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from random import randint
 
 class User(AbstractUser):
-    pass
+    display_name = models.CharField(max_length=12, default=f"User#{randint(1000, 100000)}")
+
 
 class Category(models.Model):
-    category_name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20)
 
 
 class Listing(models.Model):
@@ -16,7 +18,10 @@ class Listing(models.Model):
     price = models.IntegerField()
     image = models.URLField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
-    sold = models.BooleanField(default=False)
+    sold_is = models.BooleanField(default=False)
+    sold_date = models.DateTimeField(blank=True, null=True)
+    sold_price = models.IntegerField(blank=True, null=True)
+    sold_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sold_to", null=True, blank=True)
 
 
 class Bid(models.Model):

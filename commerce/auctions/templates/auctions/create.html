@@ -1,10 +1,50 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <form action="{% url 'create' %}" method="post">
+{% include 'auctions/temp_header.html' %}
+<div class="row">
+    <div class="col-md-6 order-md-1">
+      <br><br>
+      <form action="{% url 'create' %}" method="post">
         {% csrf_token %}
-        {{ form }}
-        <input type="submit">
+        <div class="mb-3">
+            <label for="name">Name*:</label>
+            <div class="input-group">
+                {{ form.name }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="description">Description*:</label>
+            <div class="input-group">
+                {{ form.description }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="price">Price*:</label>
+            <div class="input-group">
+                {{ form.price }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="category">Category:</label>
+            <div class="input-group">
+                {{ form.category }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="price">URL Image:</label>
+            <div class="input-group">
+                {{ form.image }}
+            </div>
+        </div>
+        <div class="mb-3">
+            <p>* - required fields</p>
+        </div>
+        <input class="btn btn-primary justify-content-center" type="submit">
+        <br><br>
     </form>
+    </div>
+  </div>
+
 
 {% endblock %}
