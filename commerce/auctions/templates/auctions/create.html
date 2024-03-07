@@ -2,8 +2,8 @@
 
 {% block body %}
 {% include 'auctions/temp_header.html' %}
-<div class="row">
-    <div class="col-md-6 order-md-1">
+<div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+    <div class="col-md-6 order-md-1 w-50">
       <br><br>
       <form action="{% url 'create' %}" method="post">
         {% csrf_token %}
@@ -40,7 +40,7 @@
         <div class="mb-3">
             <p>* - required fields</p>
         </div>
-        <input class="btn btn-primary justify-content-center" type="submit">
+        <input class="btn btn-primary justify-content-center" type="submit" value="Create">
         <br><br>
     </form>
     </div>
