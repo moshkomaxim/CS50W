@@ -1,18 +1,6 @@
 {% extends "auctions/layout.html" %}
-{% load static %}
 
 {% block body %}
-    <h2>My Archive Listings</h2>
-    <a href="{% url 'my_listings' %}">Active</a>
-    {% for item in items %}
-    <div>
-        <a href="{% url 'item' item.id %}">{{ item.name }}</a>
-        <img src="{{ item.image }}" width=150px height=150px>
-        <p>Price: {{ item.price }}$</p>
-        <p>Category: {{ item.category }}</p>
-        <p>Created: {{ item.created }}</p>
-        <p>Solded: {{ item.sold_date }} at price {{ item.sold_price }}$</p>
-    </div>
-    <hr>
-    {% endfor %}
+    {% include 'auctions/temp_header.html' %}
+    {% include 'auctions/temp_show_item.html' %}
 {% endblock %}

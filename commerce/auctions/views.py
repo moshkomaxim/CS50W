@@ -10,31 +10,38 @@ from django.core.exceptions import ObjectDoesNotExist
 from datetime import datetime
 
 from .models import User, Listing, Comment, WatchList, Bid, Category
-from .forms import ListingForm, CommentForm, BidForm
-from .utils import get_bids_info
+from .forms import ListingForm, CommentForm, BidForm, LoginForm, RegisterForm
+from .utils import get_bids_info, get_watchlist_count
 
 
 def index(request):
     items = Listing.objects.filter(sold_is=False)
-    return render(request, "auctions/index.html", {
-        "items": items
-    })
+    args = {
+        "items": items,
+        "header_title": "Active Listings",
+        "watchlist_count": get_watchlist_count(request.user.id)
+    }
+    return render(request, "auctions/index.html", args)
 
 
 def categories(request):
     items = Category.objects.all()
     print(items)
     return render(request, "auctions/categories.html", {
-        "categories": items
+        "items": items,
+        "header_title": "Categories",
+        "watchlist_count": get_watchlist_count(request.user.id)
     })
 
 
-def category(request, category_name):
-    category = Category.objects.get(name=category_name)
+def category(request, category_id):
+    category = Category.objects.get(id=category_id)
     items = Listing.objects.filter(category=category, sold_is=False)
     return render(request, "auctions/category.html", {
         "items": items,
-        "category": category_name
+        "header_title": category.name,
+        "header_description": "Different things for you kitchen",
+        "watchlist_count": get_watchlist_count(request.user.id)
     })
 
 
@@ -62,7 +69,8 @@ def item(request, item_id):
         "bids_max": bids_info["max"],
         "user_bid": user_bid,
         "in_watchlist": in_watch_list,
-        "is_author": item_object.author == request.user
+        "is_author": item_object.author == request.user,
+        "watchlist_count": get_watchlist_count(request.user.id)
     })
 
 
@@ -70,7 +78,9 @@ def item(request, item_id):
 def my_listings(request):
     items = Listing.objects.filter(author=request.user, sold_is=False)
     return render(request, "auctions/my_listings.html", {
-        "items": items
+        "items": items,
+        "header_title": "My Listings",
+        "watchlist_count": get_watchlist_count(request.user.id)
     })
 
 
@@ -78,7 +88,9 @@ def my_listings(request):
 def my_listings_archive(request):
     items = Listing.objects.filter(author=request.user, sold_is=True)
     return render(request, "auctions/my_listings_archive.html", {
-        "items": items
+        "items": items,
+        "header_title": "My Archive Listings",
+        "watchlist_count": get_watchlist_count(request.user.id)
     })
 
 
@@ -159,7 +171,10 @@ def watchlist(request):
     user_object = request.user
     items = WatchList.objects.filter(user=user_object)
     return render(request, "auctions/watchlist.html", {
-        "items": items
+        "items": items,
+        "header_title": "Watchlist",
+        "header_description": "Here are all you items added to your watchlist",
+        "watchlist_count": get_watchlist_count(request.user.id)
     })
 
 
@@ -178,12 +193,17 @@ def create(request):
         if form.is_valid():
             obj = form.save(commit=False)
             obj.author = request.user
+            if not obj.image:
+                obj.image = "https://img.freepik.com/premium-vector/default-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.jpg"
             obj.save()
         return HttpResponseRedirect(reverse("index"))
     else:
         form = ListingForm()
         return render(request, "auctions/create.html", {
-            "form": form
+            "form": form,
+            "header_title": "Create listing",
+            "header_description": "Here you can add new item for listing",
+            "watchlist_count": get_watchlist_count(request.user.id)
         })
 
 
@@ -200,7 +220,12 @@ def login_view(request):
             return HttpResponseRedirect(reverse("index"))
         else:
             error(request, "Invalid username and/or password")
-    return render(request, "auctions/login.html")
+    else:
+        form = LoginForm()
+        return render(request, "auctions/login.html", {
+            "form": form,
+            "header_title": "Login",
+        })
 
 
 def logout_view(request):
@@ -230,4 +255,8 @@ def register(request):
         login(request, user)
         return HttpResponseRedirect(reverse("index"))
     else:
-        return render(request, "auctions/register.html")
+        form = RegisterForm()
+        return render(request, "auctions/register.html", {
+            "form": form,
+            "header_title": "Registration"
+        })

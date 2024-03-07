@@ -1,4 +1,4 @@
-from auctions.models import Bid
+from auctions.models import Bid, WatchList
 
 def get_bids_info(item_id):
     bids_max = 0
@@ -14,3 +14,7 @@ def get_bids_info(item_id):
     bids_amount = bids.count()
 
     return {"max": bids_max, "max_user": bids_max_user, "amount": bids_amount}
+
+
+def get_watchlist_count(user_id):
+    return WatchList.objects.filter(user=user_id).count()

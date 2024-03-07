@@ -2,24 +2,47 @@
 {% load static %}
 
 {% block body %}
-    <h2>Watch list</h2>
-    {% if items %}
-        {% for item in items %}
-        <div>
-            <a href="{% url 'item' item.item.id %}">{{ item.item.name }}</a>
-            <img src="{{ item.item.image }}" width=150px height=150px>
-            <p>Price: {{ item.item.price }}$</p>
-            <p>Category: {{ item.item.category }}</p>
-            <p>Created: {{ item.item.created }}</p>
-            <form action="{% url 'watchlist_delete' item.item.id %}" method="post">
-                {% csrf_token %}
-                <input type="submit" value="Delete from watchlist">
-            </form>
-            
+    {% include 'auctions/temp_header.html' %}
+    <section class="py-5">
+        <div class="container px-4 px-lg-5 mt-5">
+            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+                {% if items %}
+                {% for item in items %}
+                    <div class="col mb-5">
+                        <div class="card h-100">
+                            <!-- Product image-->
+                            {% if item.item.image %}
+                                <img class="card-img-top" src="{{ item.item.image }}">
+                            {% else %}
+                                <img class="card-img-top" src="https://dummyimage.com/600x400/cfcfcf/202021.png&text=No+image">
+                            {% endif %}
+                            <!-- Product details-->
+                            <div class="card-body p-4">
+                                <div class="text-center">
+                                    <!-- Product name-->
+                                    <h5 class="fw-bolder">{{ item.item.name }}</h5>
+                                    <p class="fs-6">{{ item.item.description }}</p>
+                                    <!-- Product price-->
+                                    <p class="fw-normal">${{ item.item.price }}</p>
+                                </div>
+                            </div>
+                            <!-- Product actions-->
+                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                <div class="text-center">
+                                    <form action="{% url 'watchlist_delete' item.item.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input class="btn btn-outline-dark mt-auto" type="submit" value="Delete from watchlist">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                {% else %}
+                    <h4 class="text-center fw-bolder">No items in watchlist!</h4>   
+                    <br><br> <br><br> <br><br> <br><br> <br><br> <br><br> 
+                {% endif %}
+            </div>
         </div>
-        <hr>
-        {% endfor %}
-    {% else %}
-        <h2>No items in Watchlist!</h2>
-    {% endif %}
+    </section>
 {% endblock %}

@@ -1,8 +1,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from random import randint
 
 class User(AbstractUser):
-    pass
+    display_name = models.CharField(max_length=12, default=f"User#{randint(1000, 100000)}")
+
 
 class Category(models.Model):
     name = models.CharField(max_length=20)
