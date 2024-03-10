@@ -12,6 +12,16 @@
     <hr>
 
     <div id="emails-view">
+
+    </div>
+
+    <div id="mail-view">
+        <h2 id="mail-subject"></h2>
+        <h6 id="mail-from"></h5>
+        <h6 id="mail-to"></h3>
+        <p id="mail-body"></p>
+        <p id="mail-time"></p>
+
     </div>
 
     <div id="compose-view">
@@ -33,5 +43,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'mail/inbox.js' %}"></script>
+    <script src="{% static 'mail/inbox.js' %}?1510"></script>
 {% endblock %}
