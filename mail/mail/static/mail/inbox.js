@@ -15,22 +15,67 @@ function view_email(email_id) {
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#mail-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
+  archive_button = document.querySelector('#mail-archive');
 
   fetch(`http://127.0.0.1:8000/emails/${email_id}`)
-
   .then(response => response.json())
   .then(data => {
-    console.log(data)
+    console.log(data);
     document.querySelector('#mail-subject').innerHTML = data.subject;
     document.querySelector('#mail-from').innerHTML = `From ${data.sender}`;
     document.querySelector('#mail-to').innerHTML = `To ${data.recipients}`;
     document.querySelector('#mail-body').innerHTML = data.body;
     document.querySelector('#mail-time').innerHTML = data.timestamp;
+    if (data["archived"] == false) {
+      archive_button.innerHTML = "Archive"
+      archive_button.addEventListener('click', () => use_archive('To', email_id));
+    }
+    else {
+      archive_button.innerHTML = "Unarchive";
+      archive_button.addEventListener('click', () => use_archive('From', email_id));
+    }
   })
 
+  fetch(`http://127.0.0.1:8000/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      read: true,
+    })
+  })
+  .then(response => response)
+  .then(result => {
+      console.log(result)
+  })
+  
   return false;
 }
 
+
+function use_archive(option, email_id) {
+  let new_state;
+
+  if (option == "To") {
+    new_state = true;
+
+  }
+  else if (option == "From") {
+    new_state = false;
+  }
+
+  fetch(`http://127.0.0.1:8000/emails/${email_id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      archived: new_state,
+    })
+  })
+  .then(response => response)
+  .then(result => {
+    console.log(result);
+  })
+
+  load_mailbox("inbox");
+
+}
 
 
 function compose_email() {
