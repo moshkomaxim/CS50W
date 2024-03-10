@@ -193,8 +193,6 @@ def create(request):
         if form.is_valid():
             obj = form.save(commit=False)
             obj.author = request.user
-            if not obj.image:
-                obj.image = "https://img.freepik.com/premium-vector/default-image-icon-vector-missing-picture-page-website-design-mobile-app-no-photo-available_87543-11093.jpg"
             obj.save()
         return HttpResponseRedirect(reverse("index"))
     else:

@@ -20,7 +20,11 @@
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
                 <div class="col mb-5 w-50">
                     <h3 class="text-center fw-bolder">{{ item.name }}</h5>
-                    <img class="card-img-top" src="{{ item.image }}">
+                    {% if item.image %}
+                        <img class="card-img-top" src="{{ item.image }}">
+                    {% else %}
+                        <img class="card-img-top" src="https://dummyimage.com/600x400/cfcfcf/202021.png&text=No+image">
+                    {% endif %}
                     <div class = "tpbutton btn-toolbar justify-content-center" style="text-align:center">
                         {% if not item.sold_is %}
                             {% if in_watchlist %}
@@ -74,7 +78,7 @@
                             {% csrf_token %}
                             {{ comment_form }}
                             <br>
-                            <input class="btn btn-primary justify-content-center" type="submit">
+                            <input class="btn btn-primary justify-content-center" type="submit" value="Send">
                             </form>
                         {% endif %}
                         {% if comments %}
