@@ -16,12 +16,15 @@
     </div>
 
     <div id="mail-view">
+        <p hidden id="mail-id"></p>
         <h2 id="mail-subject"></h2>
         <h6 id="mail-from"></h6>
         <h6 id="mail-to"></h6>
         <p id="mail-body"></p>
         <p id="mail-time"></p>
-        <button class="btn btn-sm btn-outline-primary" id="mail-archive"></button>
+        <button class="btn btn-sm btn-outline-primary" id="mail-archive">Archive</button>
+        <button class="btn btn-sm btn-outline-primary" id="mail-unarchive">Unarchive</button>
+        <button class="btn btn-sm btn-outline-primary" id="mail-reply">Reply</button>
 
     </div>
 
@@ -32,7 +35,7 @@
                 From: <input disabled class="form-control" value="{{ request.user.email }}">
             </div>
             <div class="form-group">
-                To: <input id="compose-recipients" class="form-control">
+                To: <input id="compose-recipients" class="form-control" placeholder="Email address">
             </div>
             <div class="form-group">
                 <input class="form-control" id="compose-subject" placeholder="Subject">
