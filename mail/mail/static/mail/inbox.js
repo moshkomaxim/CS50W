@@ -35,24 +35,29 @@ function view_email(email_id) {
     document.querySelector('#mail-to').innerHTML = `To ${data.recipients}`;
     document.querySelector('#mail-body').innerHTML = data.body;
     document.querySelector('#mail-time').innerHTML = data.timestamp;
+
     if (data["archived"] == false) {
       document.querySelector('#mail-archive').style.display = 'block';
     }
     else {
       document.querySelector('#mail-unarchive').style.display = 'block';
     }
+
+    if (data.recipients.includes(document.querySelector('#user').innerHTML))
+    {
+      console.log("yes");
+      fetch(`http://127.0.0.1:8000/emails/${email_id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          read: true,
+        })
+      })
+      .then(response => response)
+      .then(result => {
+      })
+    }
   })
 
-  fetch(`http://127.0.0.1:8000/emails/${email_id}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      read: true,
-    })
-  })
-  .then(response => response)
-  .then(result => {
-  })
-  
   return false;
 }
 
@@ -139,7 +144,6 @@ function compose_email(option) {
     .then(response => response.json())
     .then(result => {
         if (result["message"] == "Email sent successfully.") {
-          alert("Email sent successfully.")
           load_mailbox('inbox');
         }
         else {
@@ -172,20 +176,40 @@ function load_mailbox(mailbox) {
   .then(response => response.json())
   .then(data => {
     if (data.length == ""){
-      alert(1);
+      p = document.createElement('p');
+      p.innerHTML = "You have no emails!";
+      document.querySelector('#emails-view').append(p);
     }
     else {
       ul = document.createElement('ul');
         data.forEach(email => {
           li = document.createElement('li');
-          if (mailbox == "inbox" || mailbox == "archive") {
-            li.innerHTML = `<a href="javascript:view_email(${email.id})">From ${email.sender}: ${email.subject}</a>`;
+          li.classList.add("mail_item");
+
+          if (email.read == true) {
+            li.classList.add("mail_read")
           }
-          else if (mailbox == "sent") {
-            li.innerHTML = `<a href="javascript:view_email(${email.id})">To ${email.recipients}: ${email.subject}</a>`;
+          else {
+            li.classList.add("mail_unread")
           }
           
-        ul.append(li);
+          td1 = document.createElement('td');
+          td2 = document.createElement('td');
+          if (mailbox == "inbox" || mailbox == "archive") {
+            td1.innerHTML = `<a href="javascript:view_email(${email.id})">From ${email.sender}: ${email.subject}`;
+          }
+          else {
+            td1.innerHTML = `<a href="javascript:view_email(${email.id})">To ${email.recipients}: ${email.subject}`;
+          }
+          td2.width = "20%"
+          td2.innerHTML = `${email.timestamp}`;
+
+          table = document.createElement('table');
+          table.append(td1);
+          table.append(td2);
+          li.append(table)
+
+          ul.append(li);
         });
         emails_view.append(ul);
     }
