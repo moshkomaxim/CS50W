@@ -46,12 +46,20 @@ class Comment(models.Model):
     text = models.TextField()
 
     def serialize(self):
+        objects = CommentLike.objects.filter(comment=self)
+        likes = [model_to_dict(object) for object in objects]
+
+        t = self.timestamp
+        time = {"year": t.year, "month": t.month, "day": t.day, 
+                "hour": t.hour, "minute": t.minute, "second": t.second, 
+                "full": f"{t.year}/{t.month}/{t.day} {t.hour}:{t.minute}:{t.second}"
+        }
+    
         return {
-            "user": self.user,
-            "post": self.text,
-            "likes": CommentLike.objects.filter(user=self.user, comment=self),
-            "timestamp": self.timestamp,
-            "text": self.text
+            "user": self.user.username,
+            "text": self.text,
+            "likes": likes,
+            "timestamp": time
         }
 
 
