@@ -18,11 +18,14 @@ window.onscroll = () => {
   }
 };
 
-
 function show_posts() {
+  document.querySelector('#main_view').style.display = "block";
+  add_posts();
+}
+
+function add_posts() {
   main_view = document.querySelector('#main_view');
   // Show the mailbox and hide other views
-  main_view.style.display = 'block';
   // Show the mailbox name 
   // Empty from old lists
 
@@ -149,25 +152,25 @@ function change_like(div_id) {
 }
 
 
-function add_comment(data) {
-  div = document.createElement("div");
+function show_comments(post_id, div_id) {
+  comments_body = document.getElementById(`${div_id}`).querySelector('.comments_body');
+  comments_body.style.display = "block";
 
-  user = document.createElement("h5");
-  user.innerHTML = data["user"];
+  if (comments_body.dataset.amount == 0) {
+    add_comments(post_id, div_id);
+  }
 
-  text = document.createElement("p");
-  text.innerHTML = data["text"];
-
-  time = document.createElement("p");
-  time.innerHTML = data["timestamp"]["full"];
-
-  div.append(user, text, time);
-
-  return div;
+  document.getElementById(`${div_id}`).querySelector('.comments_hide').style.display = "block";
 }
 
 
-function show_comments(post_id, div_id) {
+function hide_comments(div_id) {
+  document.getElementById(`${div_id}`).querySelector('.comments_body').style.display = "none";
+  document.getElementById(`${div_id}`).querySelector('.comments_hide').style.display = "none";
+}
+
+
+function add_comments(post_id, div_id) {
   comments_body = document.getElementById(`${div_id}`).querySelector('.comments_body');
   amount = comments_body.dataset.amount;
 
@@ -183,6 +186,7 @@ function show_comments(post_id, div_id) {
         comment = add_comment(data.comments[i]);
         comments_body.append(comment);
         comment_counter++;
+        document.getElementById(`${div_id}`).querySelector('.comments_body').dataset.amount++;
       }
       comments_hide = document.getElementById(`${div_id}`).querySelector('.comments_hide');
       comments_hide.style.display = "block";
@@ -195,10 +199,20 @@ function show_comments(post_id, div_id) {
 return false;
 }
 
-function hide_comments(div_id) {
-  comments_body = document.getElementById(`${div_id}`).querySelector('.comments_body');
-  comments_hide = document.getElementById(`${div_id}`).querySelector('.comments_hide');
 
-  comments_body.innerHTML = "";
-  comments_hide.style.display = "none";
+function add_comment(data) {
+  div = document.createElement("div");
+
+  user = document.createElement("h5");
+  user.innerHTML = data["user"];
+
+  text = document.createElement("p");
+  text.innerHTML = data["text"];
+
+  time = document.createElement("p");
+  time.innerHTML = data["timestamp"]["full"];
+
+  div.append(user, text, time);
+
+  return div;
 }
