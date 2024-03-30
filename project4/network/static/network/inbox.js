@@ -1,108 +1,33 @@
 document.addEventListener('DOMContentLoaded', function() {
 
   // Use buttons to toggle between views
-  document.querySelector('#inbox').addEventListener('click', () => load_mailbox());
-  document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
-  document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
+  document.querySelector('#all_posts').addEventListener('click', () => show_posts());
 
   // By default, load the inbox
-  load_mailbox();
+  show_posts();
 });
 
-let counter = 0;
+let post_counter = 0;
+let comment_counter = 0;
 const load_posts = 10;
+const load_comments = 10;
 
 window.onscroll = () => {
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-      load_mailbox();
+      show_posts();
   }
 };
 
 
-function view_email(email_id) {
-  document.querySelector('#emails-view').style.display = 'none';
-  document.querySelector('#mail-view').style.display = 'block';
-  document.querySelector('#compose-view').style.display = 'none';
-
-  fetch(`http://127.0.0.1:8000/emails/${email_id}`)
-
-  .then(response => response.json())
-  .then(data => {
-    console.log(data)
-    document.querySelector('#mail-subject').innerHTML = data.subject;
-    document.querySelector('#mail-from').innerHTML = `From ${data.sender}`;
-    document.querySelector('#mail-to').innerHTML = `To ${data.recipients}`;
-    document.querySelector('#mail-body').innerHTML = data.body;
-    document.querySelector('#mail-time').innerHTML = data.timestamp;
-  })
-
-  return false;
-}
-
-
-
-function compose_email() {
-  // Show compose view and hide other views
-  document.querySelector('#emails-view').style.display = 'none';
-  document.querySelector('#mail-view').style.display = 'none';
-  document.querySelector('#compose-view').style.display = 'block';
-
-  // Clear out composition fields
-  compose_recipients = document.querySelector('#compose-recipients')
-  compose_subject = document.querySelector('#compose-subject')
-  compose_body = document.querySelector('#compose-body')
-
-  compose_recipients.value = '';
-  compose_subject.value = '';
-  compose_body.value = '';
-
-  document.querySelector('#compose-form').onsubmit = function() {
-    if (compose_subject.value == "" || compose_body.value == "")
-      if (!confirm("Do you wan't to send an email without subject or body?"))
-      {
-        return false;
-      }
-
-    fetch('/emails', {
-      method: 'POST',
-      body: JSON.stringify({
-        recipients: compose_recipients.value,
-        subject: compose_subject.value,
-        body: compose_body.value
-      })
-    })
-    .then(response => response.json())
-    .then(result => {
-        if (result["message"] == "Email sent successfully.") {
-          console.log(result)
-          console.log(result["message"])
-          alert("Email sent successfully.")
-          load_mailbox('inbox');
-        }
-        else {
-          console.log(result)
-          alert(result["error"])
-        }
-      })
-    return false;
-  };
-
-  return false;
-}
-
-
-function load_mailbox() {
-  main_view = document.querySelector('#main-view');
+function show_posts() {
+  main_view = document.querySelector('#main_view');
   // Show the mailbox and hide other views
   main_view.style.display = 'block';
-  document.querySelector('#mail-view').style.display = 'none';
-  document.querySelector('#compose-view').style.display = 'none';
   // Show the mailbox name 
   // Empty from old lists
 
 
-  fetch(`http://127.0.0.1:8000/get_posts?start=${counter}&load=${load_posts}`)
+  fetch(`http://127.0.0.1:8000/get_posts?start=${post_counter}&load=${load_posts}`)
 
   .then(response => response.json())
   .then(data => {
@@ -112,7 +37,7 @@ function load_mailbox() {
     }
     else {
       for (let i = 0; i < data.posts.length; i++) {
-        post_id = counter;
+        post_id = post_counter;
         add_post(data.posts[i], post_id);
       }
     }
@@ -165,17 +90,30 @@ function add_post(post, post_num) {
 
     like = document.createElement("div");
     like.append(like_body, like_counter_div);
+    
+    comment_body = document.createElement("div");
+    comment_body.classList.add("comment_body");
 
-    link = document.createElement('a');
-    link.innerHTML = "Comment";
+    comment_counter = document.createElement('p');
+    comment_counter.innerHTML = `Comments (${post.comments.length})`;
 
-    div.append(title, text, time, like, link);
+    com_counter = 0;
+    for (let i = 0; i < post.comments.length; i++) {
+      /*
+      add_comment(data.comments[i], com_counter, post_num);
+      com_counter++;
+      """
+      */
+     ;
+    }
+
+    div.append(title, text, time, like);
     main_view.append(div);
     console.log(`post ${div.id}created`);
     
-    document.querySelector('#main-view').append(div);
+    document.querySelector('#main_view').append(div);
     
-    counter++;
+    post_counter++;
 }
 
 
@@ -211,4 +149,8 @@ function change_like(div_id) {
     console.log("Error: ", error);
   })
   return false;
+}
+
+function show_comments(div_id) {
+
 }

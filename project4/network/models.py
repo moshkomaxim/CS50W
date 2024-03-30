@@ -19,7 +19,7 @@ class Post(models.Model):
         objects = PostLike.objects.filter(post=self)
         likes = [model_to_dict(object) for object in objects]
 
-        objects = Comment.objects.filter(user=self.user, post=self)
+        objects = Comment.objects.filter(post=self)
         comments = [model_to_dict(object) for object in objects]
 
         t = self.timestamp

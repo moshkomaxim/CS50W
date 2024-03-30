@@ -32,6 +32,22 @@ def get_posts(request):
     return JsonResponse({"posts": response}, safe=False)
 
 
+def get_comments(request):
+    post = int(request.GET.get("post_id"))
+    start = int(request.GET.get("start"))
+    load = int(request.GET.get("load"))
+    end = start + load
+
+    objects = Comment.objects.filter(post=post)
+
+    response = []
+    for comment in objects[start:end]:
+        comment = comment.serialize()
+        response.append(comment)
+
+    return JsonResponse({"comments": response}, safe=False)
+
+
 def leave_post(request):
     text = request.GET(["text"])
     object = Post(
