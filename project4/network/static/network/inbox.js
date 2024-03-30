@@ -37,8 +37,8 @@ function show_posts() {
     }
     else {
       for (let i = 0; i < data.posts.length; i++) {
-        post_id = post_counter;
-        add_post(data.posts[i], post_id);
+        main_view.append(add_post(data.posts[i], post_counter));
+        post_counter++;
       }
     }
   })  
@@ -91,29 +91,26 @@ function add_post(post, post_num) {
     like = document.createElement("div");
     like.append(like_body, like_counter_div);
     
-    comment_body = document.createElement("div");
-    comment_body.classList.add("comment_body");
+    comments_body = document.createElement("div");
+    comments_body.classList.add("comments_body");
+    comments_body.dataset.amount = 0;
 
-    comment_counter = document.createElement('p');
-    comment_counter.innerHTML = `Comments (${post.comments.length})`;
+    comments_counter = document.createElement('p');
+    comments_counter.innerHTML = `Comments (${post.comments.length})`;
+    comments_counter.addEventListener('click', show_comments.bind(this, post.id, div.id), false);
 
-    com_counter = 0;
-    for (let i = 0; i < post.comments.length; i++) {
-      /*
-      add_comment(data.comments[i], com_counter, post_num);
-      com_counter++;
-      """
-      */
-     ;
-    }
+    comments_hide = document.createElement("p");
+    comments_hide.classList.add("comments_hide");
+    comments_hide.innerHTML = "Hide";
+    comments_hide.style.display = "none";
+    comments_hide.addEventListener('click', hide_comments.bind(this, div.id), false);
 
-    div.append(title, text, time, like);
-    main_view.append(div);
-    console.log(`post ${div.id}created`);
-    
-    document.querySelector('#main_view').append(div);
-    
-    post_counter++;
+    comments = document.createElement("div");
+    comments.append(comments_counter, comments_body, comments_hide);
+
+    div.append(title, text, time, like, comments);
+
+    return div;
 }
 
 
@@ -151,6 +148,57 @@ function change_like(div_id) {
   return false;
 }
 
-function show_comments(div_id) {
 
+function add_comment(data) {
+  div = document.createElement("div");
+
+  user = document.createElement("h5");
+  user.innerHTML = data["user"];
+
+  text = document.createElement("p");
+  text.innerHTML = data["text"];
+
+  time = document.createElement("p");
+  time.innerHTML = data["timestamp"]["full"];
+
+  div.append(user, text, time);
+
+  return div;
+}
+
+
+function show_comments(post_id, div_id) {
+  comments_body = document.getElementById(`${div_id}`).querySelector('.comments_body');
+  amount = comments_body.dataset.amount;
+
+  fetch(`http://127.0.0.1:8000/get_comments?start=${amount}&load=${load_comments}&post_id=${post_id}`)
+
+  .then(response => response.json())
+  .then(data => {
+    if (data.comments.length == ""){
+      ;
+    }
+    else {
+      for (let i = 0; i < data.comments.length; i++) {
+        comment = add_comment(data.comments[i]);
+        comments_body.append(comment);
+        comment_counter++;
+      }
+      comments_hide = document.getElementById(`${div_id}`).querySelector('.comments_hide');
+      comments_hide.style.display = "block";
+    }
+  })  
+  
+  .catch(error => {
+    console.log("Error: ", error);
+})
+return false;
+}
+
+function hide_comments(div_id) {
+  comments_body = document.getElementById(`${div_id}`).querySelector('.comments_body');
+  comments_hide = document.getElementById(`${div_id}`).querySelector('.comments_hide');
+
+  comments_body.innerHTML = "";
+  comments_hide.style.display = "none";
 }

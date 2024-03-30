@@ -41,10 +41,10 @@ def get_comments(request):
     objects = Comment.objects.filter(post=post)
 
     response = []
-    for comment in objects[start:end]:
-        comment = comment.serialize()
+    for object in objects[start:end]:
+        comment = object.serialize()
         response.append(comment)
-
+    
     return JsonResponse({"comments": response}, safe=False)
 
 
