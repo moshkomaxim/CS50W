@@ -1,0 +1,16 @@
+.post {
+    border-style: solid;
+}
+
+.like_body {
+    float:left; 
+    display:inline-block;
+}
+
+.like_counter {
+    padding-left: 25px;
+    padding-top: 2px;
+}
+
+
+
