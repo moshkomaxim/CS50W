@@ -11,7 +11,6 @@ class User(AbstractUser):
 
 class Post(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE, related_name="post_users")
-    title = models.TextField()
     text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -31,7 +30,6 @@ class Post(models.Model):
         return {
             "id": self.id,
             "user": self.user.username,
-            "title": self.title,
             "text": self.text,
             "timestamp": time,
             "likes": likes,
@@ -56,6 +54,7 @@ class Comment(models.Model):
         }
     
         return {
+            "id": self.id,
             "user": self.user.username,
             "text": self.text,
             "likes": likes,
