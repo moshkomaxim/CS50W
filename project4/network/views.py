@@ -20,8 +20,6 @@ def get_posts(request):
     load_posts = int(request.GET.get("load") or 10)
     end = start + load_posts
 
-    print(start, load_posts, end)
-
     response = []
     for post in objects[start:end]:
         post = post.serialize()
@@ -48,14 +46,20 @@ def get_comments(request):
     return JsonResponse({"comments": response}, safe=False)
 
 
+@csrf_exempt
+@login_required
 def leave_post(request):
-    text = request.GET(["text"])
-    object = Post(
-        user = request.user,
-        text = text
-    )
+    if request.method != "POST":
+        print("ERROR")
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+
+    object = Post(user=request.user, text=data["body"])
     object.save()
-    return HttpResponse("Succesfull")
+
+    return JsonResponse({"message": "Post submitted succesfully"}, status=201)
+
 
 
 def leave_comment(request):
@@ -78,7 +82,6 @@ def like_post(request):
         return JsonResponse({"error": "POST request required."}, status=400)
     
     data = json.loads(request.body)
-    print(data)
 
     id = int(data.get("id"))
     change = data.get("change")
@@ -93,14 +96,37 @@ def like_post(request):
     return JsonResponse({"message": "Email sent successfully."}, status=201)
 
 
-
-
-
+@csrf_exempt
+@login_required
 def like_comment(request):
-    id = request.GET("id")
-    object = CommentLike(user=request.user, commment=id)
-    object.save()
-    return HttpResponse("succesfull")
+    if request.method != "POST":
+        print("ERROR")
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+
+    id = int(data.get("id"))
+    change = data.get("change")
+
+
+    
+    print(data)
+    print(id)
+    print(change)
+
+    if change == "like":
+        object = CommentLike(user=request.user, comment=Comment.objects.filter(id=id).first())
+        print(1)
+        print(request.user)
+        print(id)
+        print(Comment.objects.filter(id=id))
+        print(object)
+        print(2)
+    elif change == "dislike":
+        object = CommentLike.objects.filter(user=request.user, comment=id)
+        object.delete()
+
+    return JsonResponse({"message": "Email sent successfully."}, status=201)
 
 
 def login_view(request):
