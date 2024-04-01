@@ -2,6 +2,14 @@
     border-style: solid;
 }
 
+.post_edit {
+    color:blue;
+}
+
+.post_text_editable {
+    padding-left: 25px;
+    padding-top: 2px;
+}
 .like_body {
     float:left; 
     display:inline-block;

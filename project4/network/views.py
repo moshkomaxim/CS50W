@@ -61,6 +61,23 @@ def leave_post(request):
     return JsonResponse({"message": "Post submitted succesfully"}, status=201)
 
 
+@csrf_exempt
+@login_required
+def edit_post(request):
+    if request.method != "POST":
+        print("ERROR")
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+
+    print(data["text"])
+    object = Post.objects.filter(id=data["post_id"]).update(text=data["text"])
+    print(object)
+    
+
+
+    return JsonResponse({"message": "Post edited succesfully"}, status=201)
+
 
 def leave_comment(request):
     id = request.GET(["id"])
@@ -107,12 +124,6 @@ def like_comment(request):
 
     id = int(data.get("id"))
     change = data.get("change")
-
-
-    
-    print(data)
-    print(id)
-    print(change)
 
     if change == "like":
         object = CommentLike(user=request.user, comment=Comment.objects.filter(id=id).first())
