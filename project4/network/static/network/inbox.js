@@ -67,7 +67,7 @@ function add_post(post, post_num) {
   body.innerHTML = `
     <a href="index">${post.user}</a> 
     <p class="post_edit">Edit</p>
-    <p>${post.text}</p>
+    <p class="post_text">${post.text}</p>
     <p>${post.timestamp.full}</p>
     <div class="like_body">${like_svg}</div>
     <p class="like_counter" data-id=${post.id}>${post.likes.length}</p>
@@ -90,7 +90,7 @@ function add_post(post, post_num) {
 
   body.querySelector(".like_body").addEventListener('click', change_post_like.bind(this, body.id), false);
   body.querySelector(".comments_counter").addEventListener('click', show_comments.bind(this, post.id, body.id), false);
-
+  body.querySelector(".post_edit").addEventListener('click', show_post_edit.bind(this, body.id, post.id), false);
   return body;
 }
 
@@ -225,38 +225,20 @@ function add_comment(data, div_id, i) {
   div.classList.add("comment");
   div.id = `${div_id} ${i}`;
 
-  user = document.createElement("h5");
-  user.innerHTML = data["user"];
-
-  text = document.createElement("p");
-  text.innerHTML = data["text"];
-
-  time = document.createElement("p");
-  time.innerHTML = data["timestamp"]["full"];
-
-  like_body = document.createElement("div");
-  like_body.classList.add("like_body");
-  like_body.innerHTML = like_svg;
+  div.innerHTML = 
+    `<h5>${data["user"]}</h5>
+     <p>${data["text"]}</p>
+     <p>${data["timestamp"]["full"]}</p>
+     <div class="like_body">${like_svg}</div>
+     <p class="like_counter" data-id=${data.id}>${data.likes.length}</p>
+    `
 
   if (data.user_liked) {
     tmp = like_body.querySelector("svg");
     tmp.style.fill = "#e74c3c";
     tmp.classList.add("active");
   }
-    like_counter = document.createElement('p');
-    like_counter.classList.add("like_counter");
-    like_counter.dataset.id = data.id;
-    like_counter.innerHTML = data.likes.length;
-
-    like_counter_div = document.createElement("div");
-    like_counter_div.append(like_counter);
-
-    like = document.createElement("div");
-    like.append(like_body, like_counter_div);
-    like.addEventListener('click', change_comment_like.bind(this, div.id), false);
-
-  div.append(user, text, time, like);
-
+    div.querySelector(".like_body").addEventListener('click', change_comment_like.bind(this, div.id), false);
   return div;
 }
 
@@ -285,3 +267,46 @@ function send_post() {
     });
     return false;
 };
+
+
+function show_post_edit(post_id, db_post_id) {
+  post_text = document.getElementById(`${post_id}`).querySelector(".post_text");
+
+  div = document.createElement("div");
+  div.innerHTML = 
+    `
+      <form class="post_edit_form">
+        <textarea class="form-contol post_text_editable">${post_text.innerHTML}</textarea>
+        <input type="submit" value="Edit" class="btn btn-primary"/>
+      </form>
+    `
+  post_text.replaceWith(div);
+
+  document.querySelector('.post_edit_form').addEventListener('submit', () => edit_post(post_id, db_post_id));
+}
+
+function edit_post(post_id, db_post_id) {
+  new_text = document.getElementById(`${post_id}`).querySelector("textarea").value;
+
+  if (new_text == "") {
+    alert("You should type in post text!");
+    return false;
+  }
+
+  fetch('/edit_post', {
+    method: 'POST',
+    body: JSON.stringify({
+      post_id: db_post_id,
+      text: new_text,
+    })
+  })
+
+  .then(response => response.json())
+  .then(result => {
+      if (result["message"] != "Post edited succesfully") {
+        console.log(result);
+      }
+
+    });
+    return false;
+}
