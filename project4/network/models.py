@@ -70,3 +70,7 @@ class PostLike(models.Model):
 class CommentLike(models.Model):
     user = models.ForeignKey("User", on_delete=models.CASCADE)
     comment = models.ForeignKey("Comment", on_delete=models.CASCADE)
+
+class Follow(models.Model):
+    follower = models.ForeignKey("User", on_delete=models.CASCADE, related_name="followers")
+    followee = models.ForeignKey("User", on_delete=models.CASCADE, related_name="followees")
