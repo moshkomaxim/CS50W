@@ -14,12 +14,19 @@ def index(request):
     return render(request, "network/index.html")
 
 
-def get_posts(request):
+def following(request):
+    return render(request, "network/following.html")
+
+
+def get_posts(request, user=None):
     start = int(request.GET.get("start") or 0)
     load_posts = int(request.GET.get("load") or 10)
     end = start + load_posts
-
-    objects = Post.objects.all().order_by("-timestamp")
+    
+    if user != None:
+        objects = Post.objects.filter(user=User.objects.get(username=user)).order_by("-timestamp")
+    else:
+        objects = Post.objects.all().order_by("-timestamp")
 
     response = []
     for object in objects[start:end]:
@@ -30,9 +37,43 @@ def get_posts(request):
         user_followed = True if user_followed else False
 
         post.update({"user_liked": user_liked, "user_followed": user_followed})
-        print(user_liked, user_followed)
         response.append(post)
         
+    return JsonResponse({"posts": response}, safe=False)
+
+
+def get_profile(request, username):
+    try: 
+        User.objects.get(username=username)
+    except:
+        return render(request, "network/error.html", {
+        "message": 'Invalid username!'
+        })
+    
+    return render(request, "network/profile.html", {
+        "user": username,
+        "followers": len(Follow.objects.filter(followee=User.objects.filter(username=username).first())),
+        "followees": len(Follow.objects.filter(follower=User.objects.filter(username=username).first()))
+    })
+
+
+@csrf_exempt
+@login_required
+def get_followees_posts(request):
+    if request.method != "POST":
+        print("ERROR")
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    followees = Follow.objects.filter(follower=request.user)
+
+    response = []
+    for object in followees:
+        posts = Post.objects.filter(user=object.followee).order_by("-timestamp")
+        for post in posts:
+            response.append(post.serialize())
+    print(followees)
+    print(response)
+
     return JsonResponse({"posts": response}, safe=False)
 
 

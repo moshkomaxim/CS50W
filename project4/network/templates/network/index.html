@@ -3,19 +3,20 @@
 
 {% block body %}
 
-<div id="compose-view">
-    <h3>New Post</h3>
-    <form id="compose-form">
-        <textarea class="form-control" id="post_text" placeholder="Body"></textarea>
-        <input type="submit" value="Post" class="btn btn-primary"/>
-    </form>
-</div>
-
 <div id="main_view">
+    <p id="create_post">Create Post</p>
+    <div id="compose_view">
+        <h3>New Post</h3>
+        <form id="compose_form">
+            <textarea class="form-control" id="post_text" placeholder="Body"></textarea>
+            <input type="submit" value="Post" class="btn btn-primary"/>
+        </form>
+    </div>
 </div>
 
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'network/index.js' %}?1510"></script>
+    <script src="{% static 'network/default.js' %}?1510"></script>
+    <script src="{% static 'network/all_posts.js' %}?1510"></script>
 {% endblock %}

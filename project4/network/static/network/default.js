@@ -1,12 +1,3 @@
-document.addEventListener('DOMContentLoaded', function() {
-
-  // Use buttons to toggle between views
-  document.querySelector('#all_posts').addEventListener('click', () => show_posts());
-  document.querySelector('#compose-form').addEventListener('submit', () => send_post());
-
-  // By default, load the inbox
-  show_posts();
-});
 
 let post_counter = 0;
 let comment_counter = 0;
@@ -31,6 +22,7 @@ function show_posts() {
   return false;
 }
 
+
 function add_posts() {
   main_view = document.querySelector('#main_view');
   // Show the mailbox and hide other views
@@ -53,6 +45,9 @@ function add_posts() {
         if (data.posts[i].user == document.getElementById("logged_username").innerHTML) {
           add_edit_button(post_counter);
         }
+        else {
+          add_follow_button(post_counter, data.posts[i].user_followed);
+        }
         post_counter++;
       }
     }
@@ -72,8 +67,9 @@ function add_post(post, post_counter) {
   body.dataset.db_id = post.id;
   body.dataset.user = post.user;
   body.innerHTML = `
-    <a class="post_user" href="index">${post.user}</a>
-    <div class="post_follow"></div>
+    <div class="post_title">
+      <a class="post_user" href="index">${post.user}</a>
+    </div>
     <p class="post_text">${post.text}</p>
     <p>${post.timestamp.full}</p>
     <div class="like_body">${like_svg}</div>
@@ -88,12 +84,6 @@ function add_post(post, post_counter) {
     tmp.classList.add("active");
   }
 
-  if (post.user_followed) {
-    tmp = body.querySelector(".post_follow").innerHTML = "Unfollow";
-  }
-  else {
-    tmp = body.querySelector(".post_follow").innerHTML = "Follow";
-  }
   comments_hide = document.createElement("p");
   comments_hide.classList.add("comments_hide");
   comments_hide.innerHTML = "Hide";
@@ -102,10 +92,44 @@ function add_post(post, post_counter) {
 
   body.querySelector(".like_body").addEventListener('click', change_post_like.bind(this, body.id), false);
   body.querySelector(".comments_counter").addEventListener('click', show_comments.bind(this, body.id), {once: true});
-  body.querySelector(".post_follow").addEventListener('click', follow_user.bind(this, body.id), false);
 
   //body.querySelector(".post_follow").addEventListener('click', follow_user.bind(this, body.id, post.dataset.db_id), false);
   return body;
+}
+
+function add_follow_button(post_counter, user_followed) {
+  post = document.getElementById(`post${post_counter}`);
+
+  p = document.createElement("p");
+  p.classList.add("post_follow");
+
+  if (user_followed) {
+    p.innerHTML = "Unfollow";
+  }
+  else {
+    p.innerHTML = "Follow";
+  }
+
+  title = post.querySelector(".post_title");
+  title.appendChild(p);
+  body.querySelector(".post_follow").addEventListener('click', follow_user.bind(this, post.id), false);
+
+  return false;
+}
+
+
+function add_edit_button(post_counter) {
+  post = document.getElementById(`post${post_counter}`);
+
+  p = document.createElement("p");
+  p.classList.add("post_edit");
+  p.innerHTML = "Edit";
+
+  title = post.querySelector(".post_title")
+  title.after(p);
+
+  post.querySelector(".post_edit").addEventListener('click', show_post_edit.bind(this, post.id, post.dataset.db_id), false), {once: true};
+  return false;
 }
 
 
@@ -282,7 +306,7 @@ function send_post() {
 
 
 function edit_post(post_id) {
-  post = documents.getElementById(`${post_id}`);
+  post = document.getElementById(`${post_id}`);
   new_text = post.querySelector("textarea").value;
 
   if (new_text == "") {
@@ -309,19 +333,6 @@ function edit_post(post_id) {
 }
 
 
-function add_edit_button(post_counter) {
-  post = document.getElementById(`post${post_counter}`);
-
-  p = document.createElement("p");
-  p.classList.add("post_edit");
-  p.innerHTML = "Edit";
-
-  post.append(p);
-
-  post.querySelector(".post_edit").addEventListener('click', show_post_edit.bind(this, post.id, post.dataset.db_id), false), {once: true};
-}
-
-
 function show_post_edit(post_id) {
   post = document.getElementById(`${post_id}`);
   post_text = post.querySelector(".post_text");
@@ -334,7 +345,7 @@ function show_post_edit(post_id) {
         <input type="submit" value="Edit" class="btn btn-primary"/>
       </form>
     `
-  div.querySelector('.post_edit_form').addEventListener('submit', () => edit_post(post_id, db_post_id));
+  div.querySelector('.post_edit_form').addEventListener('submit', () => edit_post(post_id, post.dataset.db_id));
 
   post_edit = post.querySelector(".post_edit");
   post_edit.innerHTML = "Close Edit";
