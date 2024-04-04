@@ -19,8 +19,9 @@ const load_comments = 10;
 
 
 window.onscroll = () => {
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-      show_posts();
+  console.log(window.innerHeight, window.scrollY, document.body.offsetHeight - window.innerHeight - 100);
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1 ) {
+      setTimeout(show_posts, 1000);
   }
 };
 
@@ -48,6 +49,10 @@ function add_posts() {
     else {
       for (let i = 0; i < data.posts.length; i++) {
         main_view.append(add_post(data.posts[i], post_counter));
+
+        if (data.posts[i].user == document.getElementById("logged_username").innerHTML) {
+          add_edit_button(post_counter);
+        }
         post_counter++;
       }
     }
@@ -60,13 +65,15 @@ return false;
 }
 
 
-function add_post(post, post_num) {
+function add_post(post, post_counter) {
   body = document.createElement('div');
   body.classList.add("post");
-  body.id = post_num
+  body.id = `post${post_counter}`;
+  body.dataset.db_id = post.id;
+  body.dataset.user = post.user;
   body.innerHTML = `
-    <a href="index">${post.user}</a> 
-    <p class="post_edit">Edit</p>
+    <a class="post_user" href="index">${post.user}</a>
+    <div class="post_follow"></div>
     <p class="post_text">${post.text}</p>
     <p>${post.timestamp.full}</p>
     <div class="like_body">${like_svg}</div>
@@ -81,16 +88,23 @@ function add_post(post, post_num) {
     tmp.classList.add("active");
   }
 
+  if (post.user_followed) {
+    tmp = body.querySelector(".post_follow").innerHTML = "Unfollow";
+  }
+  else {
+    tmp = body.querySelector(".post_follow").innerHTML = "Follow";
+  }
   comments_hide = document.createElement("p");
   comments_hide.classList.add("comments_hide");
   comments_hide.innerHTML = "Hide";
   comments_hide.style.display = "none";
-  comments_hide.addEventListener('click', hide_comments.bind(this, body.id), false);
   body.append(comments_hide);
 
   body.querySelector(".like_body").addEventListener('click', change_post_like.bind(this, body.id), false);
-  body.querySelector(".comments_counter").addEventListener('click', show_comments.bind(this, post.id, body.id), false);
-  body.querySelector(".post_edit").addEventListener('click', show_post_edit.bind(this, body.id, post.id), false);
+  body.querySelector(".comments_counter").addEventListener('click', show_comments.bind(this, body.id), {once: true});
+  body.querySelector(".post_follow").addEventListener('click', follow_user.bind(this, body.id), false);
+
+  //body.querySelector(".post_follow").addEventListener('click', follow_user.bind(this, body.id, post.dataset.db_id), false);
   return body;
 }
 
@@ -98,26 +112,22 @@ function add_post(post, post_num) {
 function change_post_like(div_id) {
   like_body = document.getElementById(`${div_id}`).querySelector('svg');
   like_counter = document.getElementById(`${div_id}`).querySelector('.like_counter');
-  let change;
 
   if (like_body.classList.contains("active")) {
     like_body.style.fill = "white";
     like_body.classList.remove("active");
     new_value = parseInt(like_counter.innerHTML) - 1;
-    change = "dislike";
   }
   else {
     like_body.style.fill = "#e74c3c";
     like_body.classList.add("active");
     new_value = parseInt(like_counter.innerHTML) + 1;
-    change = "like";
   }
 
   fetch('/like_post', {
     method: 'POST',
     body: JSON.stringify({
       id: like_counter.dataset.id,
-      change: change,
     })
   })
   .then(response => {
@@ -132,28 +142,23 @@ function change_post_like(div_id) {
 
 function change_comment_like(div_id) {
   like_body = document.getElementById(`${div_id}`).querySelector('svg');
-  console.log(document.getElementById(`${div_id}`));
   like_counter = document.getElementById(`${div_id}`).querySelector('.like_counter');
-  let change;
 
   if (like_body.classList.contains("active")) {
     like_body.style.fill = "white";
     like_body.classList.remove("active");
     new_value = parseInt(like_counter.innerHTML) - 1;
-    change = "dislike";
   }
   else {
     like_body.style.fill = "#e74c3c";
     like_body.classList.add("active");
     new_value = parseInt(like_counter.innerHTML) + 1;
-    change = "like";
   }
 
   fetch('/like_comment', {
     method: 'POST',
     body: JSON.stringify({
       id: like_counter.dataset.id,
-      change: change,
     })
   })
   .then(response => {
@@ -166,35 +171,42 @@ function change_comment_like(div_id) {
 }
 
 
-function show_comments(post_id, div_id) {
-  comments_body = document.getElementById(`${div_id}`).querySelector('.comments_body');
+function show_comments(post_id) {
+  post = document.getElementById(`${post_id}`);
+  comments_body = post.querySelector('.comments_body');
   comments_body.style.display = "block";
 
-  console.log(comments_body.dataset.amount);
-  console.log(comments_body.dataset.amount == 0);
   if (comments_body.dataset.amount == 0) {
-    add_comments(post_id, div_id);
+    add_comments(post_id);
   }
 
   if (comments_body.dataset.amount > 0) {
-    document.getElementById(`${div_id}`).querySelector('.comments_hide').style.display = "block";
+    document.getElementById(`${post_id}`).querySelector('.comments_hide').style.display = "block";
   }
+
+  post.querySelector(".comments_counter").addEventListener('click', hide_comments.bind(this, post_id), {once: true});
+  post.querySelector(".comments_hide").addEventListener('click', hide_comments.bind(this, post_id), {once: true});
+
+
   return false;
 }
 
 
-function hide_comments(div_id) {
-  document.getElementById(`${div_id}`).querySelector('.comments_body').style.display = "none";
-  document.getElementById(`${div_id}`).querySelector('.comments_hide').style.display = "none";
+function hide_comments(post_id) {
+  post = document.getElementById(`${post_id}`);
+  post.querySelector('.comments_body').style.display = "none";
+  post.querySelector('.comments_hide').style.display = "none";
+  post.querySelector(".comments_counter").addEventListener('click', show_comments.bind(this, post_id), {once: true});
   return false;
 }
 
 
-function add_comments(post_id, div_id) {
-  comments_body = document.getElementById(`${div_id}`).querySelector('.comments_body');
+function add_comments(post_id) {
+  post = document.getElementById(`${post_id}`);
+  comments_body = post.querySelector('.comments_body');
   amount = comments_body.dataset.amount;
 
-  fetch(`http://127.0.0.1:8000/get_comments?start=${amount}&load=${load_comments}&post_id=${post_id}`)
+  fetch(`http://127.0.0.1:8000/get_comments?start=${amount}&load=${load_comments}&post_id=${post.dataset.db_id}`)
 
   .then(response => response.json())
   .then(data => {
@@ -203,12 +215,12 @@ function add_comments(post_id, div_id) {
     }
     else {
       for (let i = 0; i < data.comments.length; i++) {
-        comment = add_comment(data.comments[i], div_id, i);
+        comment = add_comment(data.comments[i], post_id, i);
         comments_body.append(comment);
         comment_counter++;
-        document.getElementById(`${div_id}`).querySelector('.comments_body').dataset.amount++;
+        comments_body.dataset.amount++;
       }
-      comments_hide = document.getElementById(`${div_id}`).querySelector('.comments_hide');
+      comments_hide = post.querySelector('.comments_hide');
       comments_hide.style.display = "block";
     }
   })  
@@ -234,7 +246,7 @@ function add_comment(data, div_id, i) {
     `
 
   if (data.user_liked) {
-    tmp = like_body.querySelector("svg");
+    tmp = div.querySelector("svg");
     tmp.style.fill = "#e74c3c";
     tmp.classList.add("active");
   }
@@ -269,24 +281,9 @@ function send_post() {
 };
 
 
-function show_post_edit(post_id, db_post_id) {
-  post_text = document.getElementById(`${post_id}`).querySelector(".post_text");
-
-  div = document.createElement("div");
-  div.innerHTML = 
-    `
-      <form class="post_edit_form">
-        <textarea class="form-contol post_text_editable">${post_text.innerHTML}</textarea>
-        <input type="submit" value="Edit" class="btn btn-primary"/>
-      </form>
-    `
-  post_text.replaceWith(div);
-
-  document.querySelector('.post_edit_form').addEventListener('submit', () => edit_post(post_id, db_post_id));
-}
-
-function edit_post(post_id, db_post_id) {
-  new_text = document.getElementById(`${post_id}`).querySelector("textarea").value;
+function edit_post(post_id) {
+  post = documents.getElementById(`${post_id}`);
+  new_text = post.querySelector("textarea").value;
 
   if (new_text == "") {
     alert("You should type in post text!");
@@ -296,7 +293,7 @@ function edit_post(post_id, db_post_id) {
   fetch('/edit_post', {
     method: 'POST',
     body: JSON.stringify({
-      post_id: db_post_id,
+      post_id: post.dataset.db_id,
       text: new_text,
     })
   })
@@ -309,4 +306,93 @@ function edit_post(post_id, db_post_id) {
 
     });
     return false;
+}
+
+
+function add_edit_button(post_counter) {
+  post = document.getElementById(`post${post_counter}`);
+
+  p = document.createElement("p");
+  p.classList.add("post_edit");
+  p.innerHTML = "Edit";
+
+  post.append(p);
+
+  post.querySelector(".post_edit").addEventListener('click', show_post_edit.bind(this, post.id, post.dataset.db_id), false), {once: true};
+}
+
+
+function show_post_edit(post_id) {
+  post = document.getElementById(`${post_id}`);
+  post_text = post.querySelector(".post_text");
+  
+  div = document.createElement("div");
+  div.innerHTML = 
+    `
+      <form class="post_edit_form">
+        <textarea class="form-contol post_text_editable">${post_text.innerHTML}</textarea>
+        <input type="submit" value="Edit" class="btn btn-primary"/>
+      </form>
+    `
+  div.querySelector('.post_edit_form').addEventListener('submit', () => edit_post(post_id, db_post_id));
+
+  post_edit = post.querySelector(".post_edit");
+  post_edit.innerHTML = "Close Edit";
+  post_edit.addEventListener('click', hide_post_edit.bind(this, post_id, post_text.innerHTML)), {once:true};
+
+  post_text.replaceWith(div);
+}
+
+
+function hide_post_edit(post_id, post_text) {
+  post = document.getElementById(`${post_id}`);
+  text = document.createElement("p");
+  text.classList.add("post_text");
+  text.innerHTML = post_text;
+  
+  post_edit = post.querySelector(".post_edit");
+  post_edit.innerHTML = "Edit";
+  post_edit.addEventListener('click', show_post_edit.bind(this, post.id, post.dataset.db_id), false);
+
+  post.querySelector(".post_edit_form").replaceWith(text);
+}
+
+
+function follow_user(post_id) {
+  post = document.getElementById(post_id);
+  user = post.querySelector(".post_user").innerHTML;
+
+  fetch('/follow_user', {
+    method: 'POST',
+    body: JSON.stringify({
+      user: user,
+    })
+  })
+  .then(response => {
+    console.log("successfull followed")
+  })
+  .catch(error => {
+    console.log("Error: ", error);
+  })
+
+  user_flag = null;
+  posts = document.querySelectorAll(".post");
+
+  for (i = 0; i < posts.length; i++) {
+    console.log(posts[i]);
+    console.log(posts[i].dataset.user);
+    if (posts[i].dataset.user == user) {
+      post_follow = posts[i].querySelector(".post_follow");
+      if (user_flag == null) {
+        user_flag = post_follow.innerHTML;
+      }
+      if (user_flag == "Follow") {
+        post_follow.innerHTML = "Unfollow";
+      }
+      else {
+        post_follow.innerHTML = "Follow";
+      }
+    }
+  }
+  return false;
 }

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 import json
 
-from .models import User, Post, Comment, PostLike, CommentLike
+from .models import User, Post, Comment, PostLike, CommentLike, Follow
 
 
 def index(request):
@@ -15,16 +15,22 @@ def index(request):
 
 
 def get_posts(request):
-    objects = Post.objects.all().order_by("-timestamp")
     start = int(request.GET.get("start") or 0)
     load_posts = int(request.GET.get("load") or 10)
     end = start + load_posts
 
+    objects = Post.objects.all().order_by("-timestamp")
+
     response = []
-    for post in objects[start:end]:
-        post = post.serialize()
+    for object in objects[start:end]:
+        post = object.serialize()
         user_liked = PostLike.objects.filter(user=request.user.id, post=post["id"])
-        post.update({"user_liked": True if user_liked else False})
+        user_liked = True if user_liked else False
+        user_followed = Follow.objects.filter(follower=request.user, followee=object.user)
+        user_followed = True if user_followed else False
+
+        post.update({"user_liked": user_liked, "user_followed": user_followed})
+        print(user_liked, user_followed)
         response.append(post)
         
     return JsonResponse({"posts": response}, safe=False)
@@ -36,11 +42,13 @@ def get_comments(request):
     load = int(request.GET.get("load"))
     end = start + load
 
-    objects = Comment.objects.filter(post=post)
+    objects = Comment.objects.filter(post=post).order_by("-timestamp")
 
     response = []
     for object in objects[start:end]:
         comment = object.serialize()
+        user_liked = CommentLike.objects.filter(user=request.user.id, comment=comment["id"])
+        comment.update({"user_liked": True if user_liked else False})
         response.append(comment)
     
     return JsonResponse({"comments": response}, safe=False)
@@ -70,11 +78,12 @@ def edit_post(request):
     
     data = json.loads(request.body)
 
-    print(data["text"])
-    object = Post.objects.filter(id=data["post_id"]).update(text=data["text"])
-    print(object)
-    
+    object = Post.objects.filter(id=data["post_id"])
 
+    if object[0].user.username != request.user.username:
+        return JsonResponse({"error": "You are not a creator."}, status=400)
+    
+    object.update(text=data["text"])
 
     return JsonResponse({"message": "Post edited succesfully"}, status=201)
 
@@ -99,15 +108,13 @@ def like_post(request):
         return JsonResponse({"error": "POST request required."}, status=400)
     
     data = json.loads(request.body)
-
     id = int(data.get("id"))
-    change = data.get("change")
 
-    if change == "like":
+    object = PostLike.objects.filter(user=request.user, post=Post.objects.filter(id=id).first())
+    if not object:
         object = PostLike(user=request.user, post=Post.objects.filter(id=id).first())
         object.save()
-    elif change == "dislike":
-        object = PostLike.objects.filter(user=request.user, post=id)
+    else:
         object.delete()
 
     return JsonResponse({"message": "Email sent successfully."}, status=201)
@@ -121,23 +128,38 @@ def like_comment(request):
         return JsonResponse({"error": "POST request required."}, status=400)
     
     data = json.loads(request.body)
-
     id = int(data.get("id"))
-    change = data.get("change")
 
-    if change == "like":
+    object = CommentLike.objects.filter(user=request.user, comment=Comment.objects.filter(id=id).first())
+    if not object:
         object = CommentLike(user=request.user, comment=Comment.objects.filter(id=id).first())
-        print(1)
-        print(request.user)
-        print(id)
-        print(Comment.objects.filter(id=id))
-        print(object)
-        print(2)
-    elif change == "dislike":
-        object = CommentLike.objects.filter(user=request.user, comment=id)
+        object.save()
+    else:
         object.delete()
 
     return JsonResponse({"message": "Email sent successfully."}, status=201)
+
+
+@csrf_exempt
+@login_required
+def follow_user(request):
+    if request.method != "POST":
+        print("ERROR")
+        return JsonResponse({"error": "POST request required."}, status=400)
+    
+    data = json.loads(request.body)
+
+    followee = data.get("user")
+    followee = User.objects.filter(username=followee).first()
+
+    object = Follow.objects.filter(follower=request.user, followee=followee)
+    if not object:
+        object = Follow(follower=request.user, followee=followee)
+        object.save()
+    else:
+        object.delete()
+
+    return JsonResponse({"message": "Successfuly followed/unfollowed."}, status=201)
 
 
 def login_view(request):

@@ -6,6 +6,11 @@
     color:blue;
 }
 
+.post_follow {
+    padding-left: 5px;
+    display:inline-block;
+}
+
 .post_text_editable {
     padding-left: 25px;
     padding-top: 2px;
