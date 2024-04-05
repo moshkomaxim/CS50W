@@ -3,8 +3,8 @@
 
 {% block body %}
 
-<div id="profile">
-    <h3>User: {{ user }}</h3>
+<div data-user={{ username }} id="profile">
+    <h3 id="profile_user">User: {{ username }}</h3>
     <p>Followers: {{ followers }}</p>
     <p>Followees: {{ followees }}</p>
 </div>
