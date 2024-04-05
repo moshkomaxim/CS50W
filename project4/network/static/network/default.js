@@ -10,7 +10,6 @@ const load_comments = 10;
 
 
 window.onscroll = () => {
-  console.log(window.innerHeight, window.scrollY, document.body.offsetHeight - window.innerHeight - 100);
   if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1 ) {
       setTimeout(show_posts, 1000);
   }
@@ -25,10 +24,6 @@ function show_posts() {
 
 function add_posts() {
   main_view = document.querySelector('#main_view');
-  // Show the mailbox and hide other views
-  // Show the mailbox name 
-  // Empty from old lists
-
 
   fetch(`http://127.0.0.1:8000/get_posts?start=${post_counter}&load=${load_posts}`)
 
@@ -68,7 +63,7 @@ function add_post(post, post_counter) {
   body.dataset.user = post.user;
   body.innerHTML = `
     <div class="post_title">
-      <a class="post_user" href="index">${post.user}</a>
+      <a class="post_user" href="http://127.0.0.1:8000/profile/${post.user}">${post.user}</a>
     </div>
     <p class="post_text">${post.text}</p>
     <p>${post.timestamp.full}</p>
@@ -93,9 +88,9 @@ function add_post(post, post_counter) {
   body.querySelector(".like_body").addEventListener('click', change_post_like.bind(this, body.id), false);
   body.querySelector(".comments_counter").addEventListener('click', show_comments.bind(this, body.id), {once: true});
 
-  //body.querySelector(".post_follow").addEventListener('click', follow_user.bind(this, body.id, post.dataset.db_id), false);
   return body;
 }
+
 
 function add_follow_button(post_counter, user_followed) {
   post = document.getElementById(`post${post_counter}`);

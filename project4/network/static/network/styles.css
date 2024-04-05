@@ -1,5 +1,8 @@
 .post {
-    border-style: solid;
+    border: 1px solid blue;
+    margin-left: 20%;
+    margin-right: 20%;
+    padding-left: 20px;
 }
 
 .post_edit {
@@ -25,5 +28,8 @@
     padding-top: 2px;
 }
 
+.comments_body {
+    
+}
 
 

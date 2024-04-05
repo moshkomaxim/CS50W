@@ -18,15 +18,16 @@ def following(request):
     return render(request, "network/following.html")
 
 
-def get_posts(request, user=None):
+def get_posts(request):
     start = int(request.GET.get("start") or 0)
     load_posts = int(request.GET.get("load") or 10)
     end = start + load_posts
     
-    if user != None:
-        objects = Post.objects.filter(user=User.objects.get(username=user)).order_by("-timestamp")
-    else:
+    user = request.GET.get("user") or None
+    if user == None:
         objects = Post.objects.all().order_by("-timestamp")
+    else:
+        objects = Post.objects.filter(user=User.objects.get(username=user)).order_by("-timestamp")
 
     response = []
     for object in objects[start:end]:
@@ -51,7 +52,7 @@ def get_profile(request, username):
         })
     
     return render(request, "network/profile.html", {
-        "user": username,
+        "username": username,
         "followers": len(Follow.objects.filter(followee=User.objects.filter(username=username).first())),
         "followees": len(Follow.objects.filter(follower=User.objects.filter(username=username).first()))
     })
