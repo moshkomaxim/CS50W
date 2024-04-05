@@ -194,6 +194,7 @@ function show_comments(post_id) {
   post = document.getElementById(`${post_id}`);
   comments_body = post.querySelector('.comments_body');
   comments_body.style.display = "block";
+  comments_body.style.border = "1px solid rgb(125,125,201)";
 
   if (comments_body.dataset.amount == 0) {
     add_comments(post_id);
@@ -235,6 +236,9 @@ function add_comments(post_id) {
     else {
       for (let i = 0; i < data.comments.length; i++) {
         comment = add_comment(data.comments[i], post_id, i);
+        if (i > 0) {
+          comment.style.borderTop = "1px solid rgb(125,125,201)";
+        }
         comments_body.append(comment);
         comment_counter++;
         comments_body.dataset.amount++;
@@ -257,13 +261,14 @@ function add_comment(data, div_id, i) {
   div.id = `${div_id} ${i}`;
 
   div.innerHTML = 
-    `<h5>${data["user"]}</h5>
+    `
+     <a href="http://127.0.0.1:8000/profile/${data.user}">${data.user}</a>
      <p>${data["text"]}</p>
      <p>${data["timestamp"]["full"]}</p>
      <div class="like_body">${like_svg}</div>
      <p class="like_counter" data-id=${data.id}>${data.likes.length}</p>
     `
-
+    
   if (data.user_liked) {
     tmp = div.querySelector("svg");
     tmp.style.fill = "#e74c3c";
