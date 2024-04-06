@@ -3,6 +3,21 @@
     margin-left: 20%;
     margin-right: 20%;
     padding-left: 10px;
+    padding-top: 4px;
+}
+
+#compose {
+    margin-top: 10px;
+    margin-left: 20%;
+    margin-right: 20%;
+    padding-left: 10px;
+}
+
+#profile {
+    margin-top: 10px;
+    margin-left: 20%;
+    margin-right: 20%;
+    padding-left: 10px;
 }
 
 .post_edit {
@@ -32,14 +47,18 @@
 .comments_body {
     margin-left: 5%;
     margin-right: 20%;
-    padding-left: 10px;
 }
 
 .comment {
     margin-top: 5px;
+    padding-left: 10px;
+    padding-top: 4px;
 }
 
 .comments_hide {
     margin-top: 10px;
 }
 
+.compose_btn {
+    margin-bottom: 15px;
+}
