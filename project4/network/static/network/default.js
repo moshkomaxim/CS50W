@@ -9,23 +9,32 @@ const load_posts = 10;
 const load_comments = 10;
 
 
-window.onscroll = () => {
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1 ) {
-      setTimeout(show_posts, 1000);
-  }
-};
+function change_page(page) {
+  posts = document.querySelector("#posts");
 
-function show_posts() {
-  document.querySelector('#main_view').style.display = "block";
+  if (page == "prev") {
+    page = posts.dataset.page - 1;
+    if (page <= 0) {
+      page = 1;
+    }
+  }
+  else if (page == "next") {
+    page = parseInt(posts.dataset.page) + 1;
+    if (page > posts.dataset.pages) {
+      page = posts.dataset.pages;
+    }
+  }
+  
+  posts.dataset.page = page;
+
   add_posts();
-  return false;
 }
 
 
 function add_posts() {
-  main_view = document.querySelector('#main_view');
-
-  fetch(`http://127.0.0.1:8000/get_posts?start=${post_counter}&load=${load_posts}`)
+  posts_view = document.querySelector('#posts');
+  posts_view.innerHTML = "";
+  fetch(`http://127.0.0.1:8000/get_posts?page=${posts_view.dataset.page}`)
 
   .then(response => response.json())
   .then(data => {
@@ -34,8 +43,10 @@ function add_posts() {
       console.log(data);
     }
     else {
+      posts_view.dataset.pages = parseInt(data.pages);
+
       for (let i = 0; i < data.posts.length; i++) {
-        main_view.append(add_post(data.posts[i], post_counter));
+        posts_view.append(add_post(data.posts[i], post_counter));
 
         if (data.posts[i].user == document.getElementById("logged_username").innerHTML) {
           add_edit_button(post_counter);
@@ -45,6 +56,9 @@ function add_posts() {
         }
         post_counter++;
       }
+      add_pages();
+      document.getElementById(`page${posts_view.dataset.page}`).classList.add("active");
+
     }
   })  
   
@@ -52,6 +66,49 @@ function add_posts() {
     console.log("Error: ", error);
 })
 return false;
+}
+
+
+function add_pages() {
+  posts = document.getElementById("posts");
+  num_pages = Number(posts.dataset.pages);
+
+  nav = document.createElement("nav");
+  nav.classList.add("page_nav");
+  nav.innerHTML = 
+  `
+  <ul class="pagination justify-content-center">
+  </ul>
+  `
+
+  for (i = 0; i <= num_pages+1; i++) {
+    li = document.createElement("li");
+    li.classList.add("page-item");
+    li.id = `page${i}`;
+
+    if (i == 0) {
+      li.innerHTML = `<a class="page-link prev_page" href="#">Previous</a>`;
+      li.addEventListener('click', change_page.bind(this, "prev"), false);
+    }
+    else if (i == (num_pages + 1)) {
+      li.innerHTML = `<a class="page-link next_page" href="#">Next</a>`;
+      li.addEventListener('click', change_page.bind(this, "next"), false);
+    }
+    else {
+      li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+      li.addEventListener('click', change_page.bind(this, i), false);
+    }
+    nav.querySelector("ul").append(li);
+    console.log(nav);
+  }
+  
+  old_pages = document.querySelector(".page_nav");
+  if (old_pages) {
+    old_pages.remove();
+  }
+  
+  document.querySelector("#main_view").append(nav);
+  return false;
 }
 
 

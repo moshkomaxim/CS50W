@@ -14,11 +14,16 @@
             </form>
         </div>
     </div>
+
+    <div data-page="1" id="posts"></div>
+
+
 </div>
 
 {% endblock %}
 
 {% block script %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="{% static 'network/default.js' %}?1510"></script>
     <script src="{% static 'network/all_posts.js' %}?1510"></script>
 {% endblock %}

@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
   document.querySelector('#compose_view').style.display = "none";
 
   // By default, load the inbox
-  show_posts();
+ 
+  add_posts();
+
 });
 
 function show_create() {
