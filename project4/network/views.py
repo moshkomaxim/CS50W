@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from django.urls import reverse
-
+from django.core.paginator import Paginator
 import json
 
 from .models import User, Post, Comment, PostLike, CommentLike, Follow
@@ -20,18 +20,16 @@ def following(request):
 
 
 def get_posts(request):
-    start = int(request.GET.get("start") or 0)
-    load_posts = int(request.GET.get("load") or 10)
-    end = start + load_posts
+    page = request.GET.get("page") or 1
     
     user = request.GET.get("user") or None
     if user == None:
         objects = Post.objects.all().order_by("-timestamp")
     else:
         objects = Post.objects.filter(user=User.objects.get(username=user)).order_by("-timestamp")
-
+    
     response = []
-    for object in objects[start:end]:
+    for object in objects:
         post = object.serialize()
         user_liked = PostLike.objects.filter(user=request.user.id, post=post["id"])
         user_liked = True if user_liked else False
@@ -41,7 +39,9 @@ def get_posts(request):
         post.update({"user_liked": user_liked, "user_followed": user_followed})
         response.append(post)
         
-    return JsonResponse({"posts": response}, safe=False)
+    paginator = Paginator(response, 10)
+        
+    return JsonResponse({"posts": paginator.page(page).object_list, "pages": paginator.num_pages}, safe=False)
 
 
 def get_profile(request, username):
@@ -62,6 +62,7 @@ def get_profile(request, username):
 @csrf_exempt
 @login_required
 def get_followees_posts(request):
+    page = request.GET.get("page") or 1
     if request.method != "POST":
         print("ERROR")
         return JsonResponse({"error": "POST request required."}, status=400)
@@ -72,11 +73,16 @@ def get_followees_posts(request):
     for object in followees:
         posts = Post.objects.filter(user=object.followee).order_by("-timestamp")
         for post in posts:
-            response.append(post.serialize())
-    print(followees)
-    print(response)
+            post = post.serialize()
+            user_liked = PostLike.objects.filter(user=request.user.id, post=post["id"])
+            user_liked = True if user_liked else False
+            post.update({"user_liked": user_liked, "user_followed": True})
 
-    return JsonResponse({"posts": response}, safe=False)
+            response.append(post)
+    
+    paginator = Paginator(response, 10)
+
+    return JsonResponse({"posts": paginator.page(page).object_list, "pages": paginator.num_pages}, safe=False)
 
 
 def get_comments(request):

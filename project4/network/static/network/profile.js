@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
-  show_posts();
+  add_posts();
 });
 
 
 function add_posts() {
-  main_view = document.querySelector('#main_view');
+  posts_view = document.querySelector('#posts');
+  posts_view.innerHTML = "";
   username = document.querySelector('#profile').dataset.user;
 
-  fetch(`http://127.0.0.1:8000/get_posts?start=${post_counter}&load=${load_posts}&user=${username}`)
+  fetch(`http://127.0.0.1:8000/get_posts?page=${posts_view.dataset.page}&user=${username}`)
 
   .then(response => response.json())
   .then(data => {
@@ -16,8 +17,10 @@ function add_posts() {
       console.log(data);
     }
     else {
+      posts_view.dataset.pages = parseInt(data.pages);
+
       for (let i = 0; i < data.posts.length; i++) {
-        main_view.append(add_post(data.posts[i], post_counter));
+        posts_view.append(add_post(data.posts[i], post_counter));
 
         if (data.posts[i].user == document.getElementById("logged_username").innerHTML) {
           add_edit_button(post_counter);
@@ -27,6 +30,9 @@ function add_posts() {
         }
         post_counter++;
       }
+      add_pages();
+      document.getElementById(`page${posts_view.dataset.page}`).classList.add("active");
+
     }
   })  
   
@@ -35,5 +41,3 @@ function add_posts() {
 })
 return false;
 }
-
-

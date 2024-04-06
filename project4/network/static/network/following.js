@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', function() {
 
-  show_posts();
+  add_posts();
 });
 
+
 function add_posts() {
-  main_view = document.querySelector('#main_view');
-
-
-  fetch(`http://127.0.0.1:8000/get_followees_posts`, {
+  posts_view = document.querySelector('#posts');
+  posts_view.innerHTML = "";
+  fetch(`http://127.0.0.1:8000/get_followees_posts?page=${posts_view.dataset.page}`, {
     method: 'POST'
   })
 
@@ -18,14 +18,15 @@ function add_posts() {
       console.log(data);
     }
     else {
-      for (let i = 0; i < data.posts.length; i++) {
-        main_view.append(add_post(data.posts[i], post_counter));
+      posts_view.dataset.pages = parseInt(data.pages);
 
-        if (data.posts[i].user == document.getElementById("logged_username").innerHTML) {
-          add_edit_button(post_counter);
-        }
+      for (let i = 0; i < data.posts.length; i++) {
+        posts_view.append(add_post(data.posts[i], post_counter));
+        add_follow_button(post_counter, data.posts[i].user_followed);
         post_counter++;
       }
+      add_pages();
+      document.getElementById(`page${posts_view.dataset.page}`).classList.add("active");
     }
   })  
   
@@ -34,4 +35,3 @@ function add_posts() {
 })
 return false;
 }
-
