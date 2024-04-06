@@ -69,10 +69,9 @@ function add_post(post, post_counter) {
     <p>${post.timestamp.full}</p>
     <div class="like_body">${like_svg}</div>
     <p class="like_counter" data-id=${post.id}>${post.likes.length}</p>
-    <p class="comments_counter">Comments (${post.comments.length})</p>
+    <p class="comments_counter">Comments (${post.comments.length}) ↓</p>
     <div class="comments_body" data-amount=0>
   `;
-
   if (post.user_liked) {
     tmp = body.querySelector("svg");
     tmp.style.fill = "#e74c3c";
@@ -192,9 +191,10 @@ function change_comment_like(div_id) {
 
 function show_comments(post_id) {
   post = document.getElementById(`${post_id}`);
+  comments_counter = post.querySelector(".comments_counter");
+  comments_counter.innerHTML = comments_counter.innerHTML.replace("↓", "↑");
   comments_body = post.querySelector('.comments_body');
   comments_body.style.display = "block";
-  comments_body.style.border = "1px solid rgb(125,125,201)";
 
   if (comments_body.dataset.amount == 0) {
     add_comments(post_id);
@@ -214,6 +214,9 @@ function show_comments(post_id) {
 
 function hide_comments(post_id) {
   post = document.getElementById(`${post_id}`);
+  comments_counter = post.querySelector(".comments_counter");
+  comments_counter.innerHTML = comments_counter.innerHTML.replace("↑", "↓");
+
   post.querySelector('.comments_body').style.display = "none";
   post.querySelector('.comments_hide').style.display = "none";
   post.querySelector(".comments_counter").addEventListener('click', show_comments.bind(this, post_id), {once: true});
@@ -234,6 +237,8 @@ function add_comments(post_id) {
       ;
     }
     else {
+      comments_body.style.border = "1px solid rgb(125,125,201)";
+
       for (let i = 0; i < data.comments.length; i++) {
         comment = add_comment(data.comments[i], post_id, i);
         if (i > 0) {

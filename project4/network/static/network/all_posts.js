@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function show_create() {
   document.querySelector("#compose_view").style.display = "block";
+  document.getElementById("create_post").innerHTML = "Create Post ↑"
   document.querySelector('#create_post').addEventListener('click', () => hide_create(), {once: true});
   return false;
 }
@@ -18,6 +19,7 @@ function show_create() {
 
 function hide_create() {
   document.querySelector("#compose_view").style.display = "none";
+  document.getElementById("create_post").innerHTML = "Create Post ↓";
   document.querySelector('#create_post').addEventListener('click', () => show_create(), {once: true});
   return false;
 }
